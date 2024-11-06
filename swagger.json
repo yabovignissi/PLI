@@ -1,0 +1,636 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API Documentation",
+      "version": "1.0.0",
+      "description": "Documentation de l'API"
+    },
+    "paths": {
+      "/users/auth": {
+        "post": {
+          "summary": "Authentification de l'utilisateur",
+          "description": "Cette route permet à l'utilisateur de se connecter et de recevoir un jeton d'authentification.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "exemple@mail.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "MotDePasse123"
+                    }
+                  },
+                  "required": ["email", "password"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Authentification réussie",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Échec de l'authentification"
+            }
+          }
+        }
+      },
+      "/users": {
+        "get": {
+          "summary": "Récupère tous les utilisateurs",
+          "responses": {
+            "200": {
+              "description": "Liste des utilisateurs récupérée avec succès"
+            }
+          }
+        }
+      },
+      "/users/register": {
+        "post": {
+          "summary": "Enregistre un nouvel utilisateur",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "exemple@mail.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "MotDePasse123"
+                    },
+                    "firstName": {
+                      "type": "string",
+                      "example": "John"
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "example": "Doe"
+                    },
+                    "address": {
+                      "type": "string",
+                      "example": "123 Rue de Exemple, Ville, Pays"
+                    },
+                    "pic": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": null
+                    }
+                  },
+                  "required": ["email", "password", "firstName", "lastName", "address"]
+                }
+              }
+            },
+            "responses": {
+              "201": {
+                "description": "Utilisateur enregistré avec succès"
+              },
+              "400": {
+                "description": "Requête invalide"
+              }
+            }
+          }
+        }
+      },
+      "/users/{id}": {
+        "get": {
+          "summary": "Récupère un utilisateur par son ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID de l'utilisateur",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Utilisateur récupéré avec succès"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          }
+        },
+        "put": {
+          "summary": "Met à jour un utilisateur par son ID (nécessite l'authentification)",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID de l'utilisateur",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Utilisateur mis à jour avec succès"
+            },
+            "400": {
+              "description": "Requête invalide"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        },
+        "delete": {
+          "summary": "Supprime un utilisateur par son ID (nécessite l'authentification)",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID de l'utilisateur",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Utilisateur supprimé avec succès"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/users/{id}/profil": {
+        "get": {
+          "summary": "Récupère le profil de l'utilisateur",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID de l'utilisateur",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Profil de l'utilisateur récupéré avec succès"
+            },
+            "404": {
+              "description": "Profil non trouvé"
+            }
+          }
+        },
+        "put": {
+          "summary": "Met à jour le profil de l'utilisateur (nécessite l'authentification)",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID de l'utilisateur",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pic": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Profil de l'utilisateur mis à jour avec succès"
+            },
+            "400": {
+              "description": "Requête invalide"
+            },
+            "404": {
+              "description": "Profil non trouvé"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/users/password/{id}": {
+        "put": {
+          "summary": "Met à jour le mot de passe de l'utilisateur (nécessite l'authentification)",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID de l'utilisateur",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "oldPassword": {
+                      "type": "string"
+                    },
+                    "newPassword": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["oldPassword", "newPassword"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Mot de passe mis à jour avec succès"
+            },
+            "400": {
+              "description": "Requête invalide"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/search": {
+        "get": {
+          "summary": "Recherche des utilisateurs (nécessite l'authentification)",
+          "responses": {
+            "200": {
+              "description": "Résultats de la recherche récupérés avec succès"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/users/{id}/trips": {
+        "get": {
+          "summary": "Récupère les voyages d'un utilisateur par ID (nécessite l'authentification)",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID de l'utilisateur",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Voyages de l'utilisateur récupérés avec succès"
+            },
+            "404": {
+              "description": "Utilisateur ou voyages non trouvés"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/trips": {
+        "get": {
+          "summary": "Récupère tous les voyages",
+          "responses": {
+            "200": {
+              "description": "Liste des voyages récupérée avec succès"
+            }
+          }
+        },
+        "post": {
+        "summary": "Crée un nouveau voyage (nécessite l'authentification)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Voyage en montagne"
+                  },
+                  "summary": {
+                    "type": "string",
+                    "example": "Un voyage passionnant dans les montagnes"
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2024-05-01"
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2024-05-10"
+                  },
+                  "country": {
+                    "type": "string",
+                    "example": "France"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "example": "12345"
+                  }
+                },
+                "required": ["name", "summary", "startDate", "endDate", "country", "userId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Voyage créé avec succès"
+          },
+          "400": {
+            "description": "Requête invalide"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+      },
+      "/trips/{id}": {
+        "get": {
+          "summary": "Récupère un voyage par son ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID du voyage",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Voyage récupéré avec succès"
+            },
+            "404": {
+              "description": "Voyage non trouvé"
+            }
+          }
+        },
+        "put": {
+          "summary": "Met à jour un voyage par son ID (nécessite l'authentification)",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID du voyage",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Voyage mis à jour avec succès"
+            },
+            "400": {
+              "description": "Requête invalide"
+            },
+            "404": {
+              "description": "Voyage non trouvé"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        },
+        "delete": {
+          "summary": "Supprime un voyage par son ID (nécessite l'authentification)",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID du voyage",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Voyage supprimé avec succès"
+            },
+            "404": {
+              "description": "Voyage non trouvé"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/trips/user/{id}": {
+        "get": {
+          "summary": "Récupère les voyages d'un utilisateur par ID (nécessite l'authentification)",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID de l'utilisateur",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Voyages de l'utilisateur récupérés avec succès"
+            },
+            "404": {
+              "description": "Utilisateur ou voyages non trouvés"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/trips/share/{fullName}/{tripId}/{tripName}": {
+        "get": {
+          "summary": "Partage les détails d'un voyage",
+          "parameters": [
+            {
+              "name": "fullName",
+              "in": "path",
+              "required": true,
+              "description": "Nom complet de la personne partageant le voyage",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "tripId",
+              "in": "path",
+              "required": true,
+              "description": "ID du voyage",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "tripName",
+              "in": "path",
+              "required": true,
+              "description": "Nom du voyage",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Détails du voyage partagés avec succès"
+            },
+            "404": {
+              "description": "Voyage non trouvé"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
+    },
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ]
+  }
+  

@@ -1,0 +1,97 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  pic      Bytes?  
+  picType   String?
+  address    String
+
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // Relations
+  trips     Trip[]
+  comments  Comment[]
+  location Location[]
+}
+
+model Trip {
+  id          Int      @id @default(autoincrement())
+  name        String
+  summary     String
+  startDate   DateTime
+  endDate     DateTime
+  country     String
+  userId      Int       // Clé étrangère vers User
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isPublic    Boolean   @default(false) // false = privé, true = public
+  shareToken  String?   @unique
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+  steps       Step[]
+  location    Location[]
+}
+
+
+model Step {
+  id           Int       @id @default(autoincrement())
+  tripId       Int       // Clé étrangère vers Trip
+  stepDate     DateTime
+  name         String?
+  description  String?
+  latitude     Float?   
+  longitude    Float?    
+  createdAt    DateTime  @default(now())
+
+  // Relations
+  trip         Trip      @relation(fields: [tripId], references: [id])
+  photos       Photo[]
+  comments     Comment[]
+}
+
+
+model Photo {
+  id         Int      @id @default(autoincrement())
+  stepId     Int      // Clé étrangère vers Step
+  photoUrl   Bytes?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  step       Step     @relation(fields: [stepId], references: [id])
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  userId     Int      // Clé étrangère vers User
+  stepId     Int      // Clé étrangère vers Step
+  comment    String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id])
+  step       Step     @relation(fields: [stepId], references: [id])
+}
+
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  city      String
+  createdAt DateTime @default(now())
+  userId    Int
+  tripId    Int
+
+  user       User     @relation(fields: [userId], references: [id])
+  trip       Trip     @relation(fields: [tripId], references: [id])
+}
