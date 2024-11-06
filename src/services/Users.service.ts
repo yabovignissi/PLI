@@ -219,7 +219,8 @@ export async function getProfilePicture(req: Request, res: Response) {
       res.contentType(user.picType); 
       res.send(user.pic); 
     } else {
-      const defaultImagePath = path.join(__dirname, "../public/images/profil.jpg");
+      const defaultImagePath = path.join(__dirname, "../../public/images/profile.jpg");
+      console.log("Chemin absolu de l'image par défaut:", defaultImagePath);
       res.sendFile(defaultImagePath);
      
     }
