@@ -219,7 +219,7 @@ export async function getProfilePicture(req: Request, res: Response) {
       res.contentType(user.picType); 
       res.send(user.pic); 
     } else {
-      const defaultImagePath = path.join(__dirname, "../public/images/profil.jpg");
+      const defaultImagePath = path.join(__dirname, "../public/images/profile.jpg");
       res.sendFile(defaultImagePath);
      
     }
