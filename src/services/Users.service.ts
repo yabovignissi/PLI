@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import {NewPassword, User} from "../Interface";
 
 import { PrismaClient } from "@prisma/client";
-
+import path from "path";
 const prisma = new PrismaClient();
 import bcrypt from "bcrypt";
 
@@ -219,7 +219,9 @@ export async function getProfilePicture(req: Request, res: Response) {
       res.contentType(user.picType); 
       res.send(user.pic); 
     } else {
-      res.status(404).json({ message: "Photo de profil non trouvée" });
+      const defaultImagePath = path.join(__dirname, "../public/images/profil.jpg");
+      res.sendFile(defaultImagePath);
+     
     }
   } catch (error) {
     console.error('Erreur lors de la récupération de la photo de profil:', error);

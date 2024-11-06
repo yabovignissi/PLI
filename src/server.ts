@@ -30,6 +30,8 @@ app.use("/", routerTrips);
 app.use("/", routerSteps);
 app.use("/", routerPhotos);
 app.use("/", routerComments);
+app.use("/public", express.static("public"));
+
 app.use("/", routerLocation);
 
 app.listen(port, () => {
