@@ -7,7 +7,8 @@ import { Photo, Step, Trip, User } from "@prisma/client";
 const prisma = new PrismaClient();
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-
+import { validationResult } from 'express-validator';
+import { validateUserRegistration } from '../validators/User.validators'; 
 
 export async function getAll(req: Request, res: Response) {
     const QueryResult = await prisma.user.findMany({
@@ -144,11 +145,17 @@ export async function getUserTripsBySearch(req: Request, res: Response) {
   
 // CREATE USER
 export async function register(req: Request, res: Response) {
+  await Promise.all(validateUserRegistration.map((validation) => validation.run(req)));
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const formattedErrors = errors.array().map((error) => error.msg);
+    return res.status(400).json({ errors: formattedErrors });
+  }
   try {
     await createUser(req, res);
   } catch (error) {
-    res.send("User not create");
-    console.log(error);
+    console.error('Erreur lors de la création de l\'utilisateur:', error);
+    res.status(500).json({ message: "Erreur lors de la création de l'utilisateur" });
   }
 }
 // UPDATE USER

@@ -16,7 +16,7 @@ import {
   import authenticateJWT from "../middlewares/authenticateJWT";
 import { upload } from "../middlewares/multer";
 
-import { validate, validateUserRegistration } from "../validators/User.validators";
+import { validate } from "../validators/User.validators";
 
 
 
@@ -28,7 +28,7 @@ routerusers.get("/users/", getAll);
 routerusers.get("/users/:id", getById);
 routerusers.get("/search/",authenticateJWT, searchUsers);
 routerusers.get("/users/:id/trips",authenticateJWT, getUserTripsBySearch);
-routerusers.post("/users/register/", validateUserRegistration, validate, register);
+routerusers.post("/users/register/",  validate, register);
 routerusers.post("/users/auth/", login);
 routerusers.put("/users/:id", authenticateJWT, updateById);
 routerusers.put("/users/:id/profil", authenticateJWT, upload.single('pic'),  updateProfile);
