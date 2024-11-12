@@ -57,6 +57,11 @@ jobs:
       - name: Wait for MySQL to be ready
         run: sleep 20  # Attendre que MySQL soit prêt (ajustez si nécessaire)
 
+      - name: Run Prisma Migrations
+        env:
+          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"  # URL de connexion à la base de données
+        run: npx prisma migrate deploy  # Exécutez les migrations Prisma
+
       - name: Run tests
         env:
           DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"  # URL de connexion à la base de données
