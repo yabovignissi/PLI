@@ -53,4 +53,4 @@ jobs:
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}  # Utilisation du secret pour déployer sur Railway
-        run: railway up  # Déploiement via Railway CLI
+        run: echo $RAILWAY_TOKEN  # Déploiement via Railway CLI
