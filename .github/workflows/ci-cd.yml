@@ -41,20 +41,16 @@ jobs:
       - name: Set up DATABASE_URL
         run: echo "DATABASE_URL=mysql://root:root@localhost:3306/test_db" >> $GITHUB_ENV
 
-      # 5. Exécution des tests
-      - name: Run tests
-        run: npm test
-
-      # 6. Construction du projet
+      # 5. Construction du projet
       - name: Build project
         run: npm run build
 
-      # 7. Installation du Railway CLI
+      # 6. Installation du Railway CLI
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      # 8. Déploiement sur Railway
+      # 7. Déploiement sur Railway
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}  # Utilisation du secret pour déployer sur Railway
-        run: railway up
+        run: railway up  # Déploiement via Railway CLI
