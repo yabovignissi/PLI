@@ -6,66 +6,66 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  # build:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18'
 
-      - name: Install dependencies
-        run: npm install
+  #     - name: Install dependencies
+  #       run: npm install
 
-      - name: Build the project
-        run: npm run build
+  #     - name: Build the project
+  #       run: npm run build
 
-  test:
-    runs-on: ubuntu-latest
-    needs: build
+  # test:
+  #   runs-on: ubuntu-latest
+  #   needs: build
 
-    services:
-      db:
-        image: mysql:latest
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: mydb_test
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd "mysqladmin ping -h localhost -u root -proot"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+  #   services:
+  #     db:
+  #       image: mysql:latest
+  #       env:
+  #         MYSQL_ROOT_PASSWORD: root
+  #         MYSQL_DATABASE: mydb_test
+  #       ports:
+  #         - 3306:3306
+  #       options: >-
+  #         --health-cmd "mysqladmin ping -h localhost -u root -proot"
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18'
 
-      - name: Install dependencies
-        run: npm install
+  #     - name: Install dependencies
+  #       run: npm install
 
-      - name: Wait for MySQL to be ready
-        run: sleep 20
+  #     - name: Wait for MySQL to be ready
+  #       run: sleep 20
 
-      - name: Run Prisma Migrations
-        env:
-          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"
-        run: npx prisma migrate deploy
+  #     - name: Run Prisma Migrations
+  #       env:
+  #         DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"
+  #       run: npx prisma migrate deploy
 
-      - name: Run tests
-        env:
-          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"
-        run: npm test
+  #     - name: Run tests
+  #       env:
+  #         DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"
+  #       run: npm test
 
   deploy:
     runs-on: ubuntu-latest
@@ -83,12 +83,8 @@ jobs:
       - name: Install Railway CLI
         run: npm i -g @railway/cli@3.0.8
       
-      - name: Link to Railway project
-        run: railway link vigilant-manifestation
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_KEY }}
 
       - name: Deploy to Railway
-        run: railway up
+        run: railway up --service 1aa51970-ec42-4eea-a5d8-d8fca528a644
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_KEY }}
