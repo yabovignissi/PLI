@@ -69,7 +69,6 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: test
 
     steps:
       - name: Checkout code
@@ -80,10 +79,19 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Install curl
+        run: apt-get update && apt-get install -y curl
+
       - name: Install Railway CLI
-        run: npm install -g @railway/cli
+        run: curl -fsSL https://railway.app/install.sh | sh
 
       - name: Deploy to Railway
-        run: railway up
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_KEY }}
+        run: railway up --service=$RAILWAY_API_TOKEN -d
