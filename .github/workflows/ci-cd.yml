@@ -3,7 +3,7 @@ name: CI/CD Pipeline for Railway with MySQL
 on:
   push:
     branches:
-      - main  # Déclenche le pipeline sur les pushs vers la branche "main"
+      - main  
 
 jobs:
   build:
@@ -16,24 +16,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Remplacez par la version de Node.js que vous utilisez
+          node-version: '18'  
 
       - name: Install dependencies
-        run: npm install  # Installez les dépendances de votre projet
+        run: npm install  
 
       - name: Build the project
-        run: npm run build  # Exécutez la commande de build de votre projet
+        run: npm run build  
 
   test:
     runs-on: ubuntu-latest
-    needs: build  # Le job "test" s'exécute après le job "build"
+    needs: build  
 
     services:
       db:
-        image: mysql:latest  # Utilise l'image MySQL
+        image: mysql:latest
         env:
-          MYSQL_ROOT_PASSWORD: root  # Mot de passe root pour MySQL
-          MYSQL_DATABASE: mydb_test  # Nom de la base de données
+          MYSQL_ROOT_PASSWORD: root  
+          MYSQL_DATABASE: mydb_test  
         ports:
           - 3306:3306
         options: >-
@@ -55,21 +55,21 @@ jobs:
         run: npm install
 
       - name: Wait for MySQL to be ready
-        run: sleep 20  # Attendre que MySQL soit prêt (ajustez si nécessaire)
+        run: sleep 20  
 
       - name: Run Prisma Migrations
         env:
-          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"  # URL de connexion à la base de données
-        run: npx prisma migrate deploy  # Exécutez les migrations Prisma
+          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"  
+        run: npx prisma migrate deploy 
 
       - name: Run tests
         env:
-          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"  # URL de connexion à la base de données
-        run: npm test  # Exécutez vos tests
+          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test" 
+        run: npm test  
 
   deploy:
     runs-on: ubuntu-latest
-    needs: test  # Le job "deploy" s'exécute après le job "test"
+    needs: test 
 
     steps:
       - name: Checkout code
@@ -85,9 +85,13 @@ jobs:
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-
+      
+      - name: Link Railway Project
+        run: railway link <project-id>
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }
       - name: Deploy to Railway
         env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           npx railway up
