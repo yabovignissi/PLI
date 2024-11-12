@@ -88,6 +88,6 @@ jobs:
 
       - name: Deploy to Railway
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_KEY: ${{ secrets.RAILWAY_KEY }}
         run: |
           npx railway up
