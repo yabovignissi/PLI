@@ -238,56 +238,70 @@ describe('User Services - createUser', () => {
 
   describe('getProfilePicture', () => {
     it('should retrieve and send the user profile picture if it exists', async () => {
-        const picData = Buffer.from('iVBORw0KGgo=', 'base64');
-        const user = await prisma.user.create({
-          data: {
-            lastName: 'Doe',
-            firstName: 'John',
-            email: 'johndoe@example.com',
-            password: 'password123',
-            address: '123 Main St',
-            pic: picData,
-            picType: 'image/png',
-          },
-        });
-    
-        const req = { params: { id: user.id.toString() } } as unknown as Request;
-        const res = {
-          contentType: jest.fn().mockReturnThis(),
-          send: jest.fn(),
-        } as unknown as Response;
-    
-        await UserServices.getProfilePicture(req, res);
-
-        expect(res.contentType).toHaveBeenCalledWith('image/png');
-        expect(res.send).toHaveBeenCalledWith(picData);
+      const picData = Buffer.from('iVBORw0KGgo=', 'base64');
+      const user = await prisma.user.create({
+        data: {
+          lastName: 'Doe',
+          firstName: 'John',
+          email: 'johndoe@example.com',
+          password: 'password123',
+          address: '123 Main St',
+          pic: picData,
+          picType: 'image/png',
+        },
+      });
+  
+      const req = { params: { id: user.id.toString() } } as unknown as Request;
+      const res = {
+        contentType: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+        sendFile: jest.fn(), // Ajout de sendFile pour le mock
+      } as unknown as Response;
+  
+      await UserServices.getProfilePicture(req, res);
+  
+      expect(res.contentType).toHaveBeenCalledWith('image/png');
+      expect(res.send).toHaveBeenCalledWith(picData);
+    });
+  
+    it('should return the default profile picture if no user picture exists', async () => {
+      const req = { params: { id: '9999' } } as unknown as Request;
+      const res = {
+        contentType: jest.fn(),
+        send: jest.fn(),
+        sendFile: jest.fn(), // Ajout de sendFile pour le mock
+      } as unknown as Response;
+  
+      await UserServices.getProfilePicture(req, res);
+      expect(res.sendFile).toHaveBeenCalled();
+    });
+  
+    it('should return 500 on internal error', async () => {
+      // Simulez une erreur en provoquant une exception dans Prisma
+      jest.spyOn(prisma.user, 'findUnique').mockImplementationOnce(() => {
+        throw new Error('Forced internal error');
       });
     
-      it('should not send anything if user or profile picture does not exist', async () => {
-        const req = { params: { id: '9999' } } as unknown as Request; 
-        const res = {
-          contentType: jest.fn(),
-          send: jest.fn(),
-        } as unknown as Response;
+      const req = { params: { id: '1' } } as unknown as Request;
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      } as unknown as Response;
     
-        await UserServices.getProfilePicture(req, res);
-        expect(res.contentType).not.toHaveBeenCalled();
-        expect(res.send).not.toHaveBeenCalled();
+      await UserServices.getProfilePicture(req, res);
+    
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Échec de la récupération de la photo de profil',
       });
     
-      it('should return 500 on internal error', async () => {
-        const req = { params: { id: 'invalid_id' } } as unknown as Request; 
-        const res = {
-          status: jest.fn().mockReturnThis(),
-          json: jest.fn(),
-        } as unknown as Response;
+      // Restaurer l'implémentation originale de Prisma
+      jest.restoreAllMocks();
+    });
     
-        await UserServices.getProfilePicture(req, res);
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Failed to retrieve profile picture' });
-      });
-   
   });
+  
  
     describe(' uploadProfilePicture', () => {
         it('should upload profile picture', async () => {
