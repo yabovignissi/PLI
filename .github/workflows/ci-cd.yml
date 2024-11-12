@@ -12,32 +12,49 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7  # Vous pouvez aussi utiliser une autre version de MySQL ou PostgreSQL
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306  # Expose le port MySQL
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5  # Options de santé
+
     steps:
+      # 1. Checkout du code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. Configuration de Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Assurez-vous que la version de Node.js est correcte
+          node-version: '18'
 
+      # 3. Installation des dépendances
       - name: Install dependencies
         run: npm install
 
+      # 4. Configuration de la variable d'environnement DATABASE_URL pour MySQL (en utilisant le service Docker)
+      - name: Set up DATABASE_URL
+        run: echo "DATABASE_URL=mysql://root:root@localhost:3306/test_db" >> $GITHUB_ENV
+
+      # 5. Exécution des tests
       - name: Run tests
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npm test
 
+      # 6. Construction du projet
       - name: Build project
         run: npm run build
 
-      # Installer le nouveau Railway CLI
+      # 7. Installation du Railway CLI
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      # Déployer avec la nouvelle CLI
+      # 8. Déploiement sur Railway
       - name: Deploy to Railway
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}  # Utilisation du secret pour déployer sur Railway
         run: railway up
