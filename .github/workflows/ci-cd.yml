@@ -3,7 +3,7 @@ name: CI/CD Pipeline for Railway with MySQL
 on:
   push:
     branches:
-      - main  
+      - main
 
 jobs:
   build:
@@ -16,24 +16,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  
+          node-version: '18'
 
       - name: Install dependencies
-        run: npm install  
+        run: npm install
 
       - name: Build the project
-        run: npm run build  
+        run: npm run build
 
   test:
     runs-on: ubuntu-latest
-    needs: build  
+    needs: build
 
     services:
       db:
         image: mysql:latest
         env:
-          MYSQL_ROOT_PASSWORD: root  
-          MYSQL_DATABASE: mydb_test  
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: mydb_test
         ports:
           - 3306:3306
         options: >-
@@ -55,20 +55,21 @@ jobs:
         run: npm install
 
       - name: Wait for MySQL to be ready
-        run: sleep 20  
+        run: sleep 20
 
       - name: Run Prisma Migrations
         env:
-          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"  
-        run: npx prisma migrate deploy 
+          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"
+        run: npx prisma migrate deploy
 
       - name: Run tests
         env:
-          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test" 
-        run: npm test  
+          DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"
+        run: npm test
 
-   deploy:
+  deploy:
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - name: Checkout code
