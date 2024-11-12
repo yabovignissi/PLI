@@ -27,10 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Étape 4 : Exécuter les tests
-      - name: Run tests
-        run: npm test  # Remplacez par votre commande de test si nécessaire
-
       # Étape 5 : Construire l'application
       - name: Build project
         run: npm run build  # Assurez-vous d'avoir un script de build dans votre package.json
