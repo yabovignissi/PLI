@@ -84,7 +84,7 @@ jobs:
         run: npm i -g @railway/cli@3.0.8
       
       - name: Link to Railway project
-        run: railway link 1aa51970-ec42-4eea-a5d8-d8fca528a644
+        run: railway link vigilant-manifestation
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_KEY }}
 
