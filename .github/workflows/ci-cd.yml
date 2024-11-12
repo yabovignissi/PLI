@@ -1,0 +1,43 @@
+name: CI/CD Pipeline for My-API
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Étape 1 : Récupérer le code du dépôt
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Étape 2 : Configurer Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Remplacez par la version de Node.js que votre projet utilise
+
+      # Étape 3 : Installer les dépendances
+      - name: Install dependencies
+        run: npm install
+
+      # Étape 4 : Exécuter les tests
+      - name: Run tests
+        run: npm test  # Remplacez par votre commande de test si nécessaire
+
+      # Étape 5 : Construire l'application
+      - name: Build project
+        run: npm run build  # Assurez-vous d'avoir un script de build dans votre package.json
+
+      # Étape 6 : Déployer sur Railway
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}  # Assurez-vous que ce secret est configuré
+        run: |
+          npx railway up
