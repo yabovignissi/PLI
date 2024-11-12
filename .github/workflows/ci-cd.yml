@@ -89,7 +89,7 @@ jobs:
       - name: Link Railway Project
         run: railway link <project-id>
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
