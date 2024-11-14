@@ -107,7 +107,11 @@ jobs:
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOK }}
 
-      - name: Deploy to Railway
+      - name: Deploy to PLI  Railway
         run: railway up --service fd350261-4db7-454b-8bb8-b4fc042a107c
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_KEY }}
+          - name: Deploy to  Mysql Railway
+        run: railway up --service 30dc27d1-2bc7-42d2-8ac5-a9ebd5866531
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_KEY }}
