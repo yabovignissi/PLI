@@ -110,4 +110,4 @@ jobs:
       - name: Deploy to Railway
         run: railway up --service fd350261-4db7-454b-8bb8-b4fc042a107c
         env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_KEY }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_KEY }}
