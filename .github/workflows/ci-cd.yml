@@ -103,6 +103,7 @@ jobs:
         run: npm i -g @railway/cli@3.0.8
 
       - name: Deploy to Railway
+        run: railway link --environment production 1aa51970-ec42-4eea-a5d8-d8fca528a644
         run: railway up 
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_KEY }}
