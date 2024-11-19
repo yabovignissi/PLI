@@ -32,9 +32,14 @@ export async function handleLocation(
   }
 
   try {
+    // Convertir userId et tripId en entiers et vérifier leur validité
     const parsedUserId = parseInt(String(userId), 10);
     const parsedTripId = parseInt(String(tripId), 10);
-  
+
+    if (isNaN(parsedUserId) || isNaN(parsedTripId)) {
+      return res.status(400).json({ error: 'userId ou tripId invalide' });
+    }
+
     console.log("Appel de l'API Nominatim pour le géocodage inverse...");
     const response = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
       params: {
@@ -49,7 +54,7 @@ export async function handleLocation(
 
     const city = response.data.address?.city || response.data.address?.town || response.data.address?.village;
     console.log("Ville déterminée :", city);
- 
+
     if (!city) {
       return res.status(500).json({ error: 'Impossible de déterminer la ville' });
     }
@@ -114,6 +119,20 @@ export async function getLocation(req: Request<{ userId: string; tripId: string 
   } catch (error) {
     console.error('Erreur lors de la récupération de la localisation : ', error);
     return res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
+export async function getAll(req: Request, res: Response) {
+  try {
+    const QueryResult = await prisma.location.findMany();
+    res.send(JSON.stringify(QueryResult, null, 2));
+  } catch (error) {
+    if (error instanceof Error) {
+      res
+        .status(500)
+        .send({ error: "Could not retrieve location", details: error.message });
+    } else {
+      res.status(500).send({ error: "Unknown error occurred" });
+    }
   }
 }
 

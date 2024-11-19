@@ -74,6 +74,11 @@ export async function deleteTrip(req: Request, res: Response) {
         tripId: id,
       },
     });
+    await prisma.location.deleteMany({
+      where: {
+        tripId: id,
+      },
+    });
     await prisma.trip.delete({
       where: {
         id: id,
