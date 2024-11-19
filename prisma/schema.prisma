@@ -50,9 +50,7 @@ model Step {
   tripId       Int       // Clé étrangère vers Trip
   stepDate     DateTime
   name         String?
-  description  String?
-  latitude     Float?   
-  longitude    Float?    
+  description  String?   
   createdAt    DateTime  @default(now())
 
   // Relations
@@ -89,6 +87,8 @@ model Location {
   id        Int      @id @default(autoincrement())
   city      String
   createdAt DateTime @default(now())
+  latitude  Float   
+  longitude Float 
   userId    Int
   tripId    Int
 
