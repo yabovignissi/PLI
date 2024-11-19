@@ -9,10 +9,11 @@ interface JsonResponse {
   message?: string;
   location?: {
     city?: string;
+    latitude?: number;
+    longitude?: number;
   };
 }
 
-// Interface pour le corps de la requête
 interface LocationRequestBody {
   latitude: number;
   longitude: number;
@@ -20,7 +21,6 @@ interface LocationRequestBody {
   tripId: number;
 }
 
-// Utilisation de `unknown` pour éviter l'erreur avec `{}` dans Request
 export async function handleLocation(
   req: Request<unknown, unknown, LocationRequestBody>, 
   res: Response<JsonResponse>
@@ -32,41 +32,49 @@ export async function handleLocation(
   }
 
   try {
-    // Géocodage inverse pour obtenir la ville
+    const parsedUserId = parseInt(String(userId), 10);
+    const parsedTripId = parseInt(String(tripId), 10);
+  
+    console.log("Appel de l'API Nominatim pour le géocodage inverse...");
     const response = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
       params: {
         lat: latitude,
         lon: longitude,
         format: 'json'
+      },
+      headers: {
+        'User-Agent': 'my-way/1.0.0 (aa@gmail.com)', // Custom User-Agent
       }
     });
 
     const city = response.data.address?.city || response.data.address?.town || response.data.address?.village;
-
+    console.log("Ville déterminée :", city);
+ 
     if (!city) {
       return res.status(500).json({ error: 'Impossible de déterminer la ville' });
     }
 
     // Vérifier la dernière entrée et la durée dans la même ville
     const lastLocation = await prisma.location.findFirst({
-      where: { userId, tripId },
+      where: { userId: parsedUserId, tripId: parsedTripId },
       orderBy: { createdAt: 'desc' },
     });
 
     const now = new Date();
-    const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000); // 12 heures en millisecondes
+    const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
 
-    // Si l'utilisateur est dans la même ville depuis moins de 12 heures, renvoie la ville actuelle
     if (lastLocation && lastLocation.city === city && lastLocation.createdAt > twelveHoursAgo) {
-      return res.status(200).json({ message: `Vous êtes toujours à ${city}`, location: { city } });
+      return res.status(200).json({ message: `Vous êtes toujours à ${city}`, location: { city, latitude, longitude } });
     }
 
-    // Enregistrer la nouvelle localisation
+    // Enregistrer la nouvelle localisation avec latitude et longitude
     const newLocation = await prisma.location.create({
       data: {
         city,
-        userId,
-        tripId,
+        latitude,
+        longitude,
+        userId: parsedUserId,
+        tripId: parsedTripId,
       },
     });
 
@@ -77,24 +85,29 @@ export async function handleLocation(
   }
 }
 
-export async function getLocation(req: Request<{ userId: string }>, res: Response<JsonResponse>) {
-  const { userId } = req.params;
+export async function getLocation(req: Request<{ userId: string; tripId: string }>, res: Response<JsonResponse>) {
+  const { userId, tripId } = req.params;
 
-  if (!userId) {
-    return res.status(400).json({ error: 'ID utilisateur manquant' });
+  if (!userId || !tripId) {
+    return res.status(400).json({ error: 'Paramètres userId ou tripId manquants' });
   }
 
   try {
     const location = await prisma.location.findFirst({
-      where: { userId: parseInt(userId, 10) },
+      where: {
+        userId: parseInt(userId, 10),
+        tripId: parseInt(tripId, 10),
+      },
       orderBy: { createdAt: 'desc' },
       select: {
         city: true,
+        latitude: true,
+        longitude: true,
       },
     });
 
     if (!location) {
-      return res.status(404).json({ error: 'Aucune localisation trouvée pour cet utilisateur' });
+      return res.status(404).json({ error: 'Aucune localisation trouvée pour cet utilisateur et ce voyage' });
     }
 
     return res.status(200).json({ location });
@@ -103,3 +116,4 @@ export async function getLocation(req: Request<{ userId: string }>, res: Respons
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 }
+
