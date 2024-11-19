@@ -79,7 +79,7 @@ jobs:
       - name: Run Prisma Migrations
         env:
           DATABASE_URL: "mysql://root:root@localhost:3306/mydb_test"
-        run: npx prisma migrate deploy
+        run: npm run migrate
 
       - name: Run tests
         env:

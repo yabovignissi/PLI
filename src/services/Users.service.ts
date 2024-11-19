@@ -207,6 +207,9 @@ export async function deleteUser(req: Request, res: Response) {
 export async function getProfilePicture(req: Request, res: Response) {
   try {
     const userId = parseInt(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -214,7 +217,7 @@ export async function getProfilePicture(req: Request, res: Response) {
         picType: true,
       },
     });
-
+    // console.log(user)
     if (user?.pic && user?.picType) {
       res.contentType(user.picType); 
       res.send(user.pic); 
