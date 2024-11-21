@@ -48,7 +48,7 @@ export async function updateTrip(id: number, data: {
         shareToken
       },
     });
-  } catch (error) {
+  } catch  {
     throw new Error("Erreur lors de la mise à jour du voyage");
   }
 }
@@ -101,7 +101,7 @@ export async function deleteTrip(req: Request, res: Response) {
     });
 
     res.status(200).send("Voyage supprimé avec succès");
-  } catch (error) {
+  } catch {
     res.status(500).send("Erreur lors de la suppression du voyage");
   }
 }

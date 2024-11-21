@@ -155,7 +155,7 @@ export async function deleteUser(req: Request, res: Response) {
 
     await prisma.user.delete({ where: { id } });
     res.status(200).send("User deleted");
-  } catch (error) {
+  } catch  {
     res.status(500).send("Une erreur est survenue lors de la suppression de l'utilisateur.");
   }
 }
