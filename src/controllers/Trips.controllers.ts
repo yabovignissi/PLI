@@ -59,11 +59,11 @@ export async function getById(req: Request, res: Response) {
 
 export async function create(req: Request, res: Response) {
   try {
-    const createdTrip = await createTrip(req.body); 
+    const createdTrip = await createTrip(req.body);
+  
     res.status(201).json(createdTrip); 
   } catch (error) {
     res.status(500).json({ error: "Failed to create trip" });
-    console.error(error);
   }
 }
 

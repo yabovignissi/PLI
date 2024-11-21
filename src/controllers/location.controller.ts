@@ -27,28 +27,13 @@ export async function handleLocation(
 ) {
   const { latitude, longitude, userId, tripId } = req.body;
 
-  // Affichage des valeurs reçues pour le débogage
-  console.log("Valeurs reçues - latitude:", latitude, "longitude:", longitude, "userId:", userId, "tripId:", tripId);
-
-  // Vérifiez que tous les paramètres sont fournis
   if (!latitude || !longitude || !userId || !tripId) {
-    console.log("Erreur : Paramètres manquants");
     return res.status(400).json({ error: 'Paramètres manquants' });
   }
 
   try {
-    // Convertir userId et tripId en entiers
-    const parsedUserId = Number(userId);
-    const parsedTripId = Number(tripId);
-
-    // Affichage des valeurs converties pour le débogage
-    console.log("Valeurs après conversion - parsedUserId:", parsedUserId, "parsedTripId:", parsedTripId);
-
-    // Vérifiez si userId et tripId sont bien des entiers valides
-    if (!Number.isInteger(parsedUserId) || !Number.isInteger(parsedTripId)) {
-      console.log("Erreur : userId ou tripId invalide");
-      return res.status(400).json({ error: 'userId ou tripId invalide' });
-    }
+    const parsedUserId = parseInt(String(userId), 10);
+    const parsedTripId = parseInt(String(tripId), 10);
 
     console.log("Appel de l'API Nominatim pour le géocodage inverse...");
     const response = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
@@ -58,7 +43,7 @@ export async function handleLocation(
         format: 'json'
       },
       headers: {
-        'User-Agent': 'my-way/1.0.0 (aa@gmail.com)', // Custom User-Agent
+        'User-Agent': 'my-way/1.0.0 (aa@gmail.com)',
       }
     });
 
@@ -66,29 +51,27 @@ export async function handleLocation(
     console.log("Ville déterminée :", city);
 
     if (!city) {
-      console.log("Erreur : Impossible de déterminer la ville");
       return res.status(500).json({ error: 'Impossible de déterminer la ville' });
     }
 
-    // Vérifier la dernière entrée et la durée dans la même ville
-    console.log("Recherche de la dernière localisation enregistrée...");
+    // Vérifie la dernière entrée et la durée dans la même ville
     const lastLocation = await prisma.location.findFirst({
       where: { userId: parsedUserId, tripId: parsedTripId },
       orderBy: { createdAt: 'desc' },
     });
 
-    console.log("Dernière localisation trouvée :", lastLocation);
-
     const now = new Date();
-    const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
-
-    if (lastLocation && lastLocation.city === city && lastLocation.createdAt > twelveHoursAgo) {
-      console.log(`Vous êtes toujours à ${city}`);
-      return res.status(200).json({ message: `Vous êtes toujours à ${city}`, location: { city, latitude, longitude } });
+    const oneHourAgo = new Date(now.getTime() - 1 * 60 * 60 * 3000); 
+    if (lastLocation && lastLocation.city === city && lastLocation.createdAt > oneHourAgo) {
+      return res.status(200).json({
+        message: `Vous êtes toujours à ${city}`,
+        location: { city, latitude, longitude }
+      });
+    }
+    if (!lastLocation || lastLocation.city !== city) {
+      console.log("Changement de position détecté ou localisation précédente trop ancienne.");
     }
 
-    // Enregistrer la nouvelle localisation avec latitude et longitude
-    console.log("Enregistrement de la nouvelle localisation...");
     const newLocation = await prisma.location.create({
       data: {
         city,
@@ -99,8 +82,10 @@ export async function handleLocation(
       },
     });
 
-    console.log("Nouvelle localisation enregistrée :", newLocation);
-    return res.status(201).json({ message: 'Localisation enregistrée', location: newLocation });
+    return res.status(201).json({
+      message: 'Localisation enregistrée',
+      location: newLocation
+    });
   } catch (error) {
     console.error('Erreur lors de la gestion de la localisation : ', error);
     return res.status(500).json({ error: 'Erreur serveur' });
@@ -139,6 +124,7 @@ export async function getLocation(req: Request<{ userId: string; tripId: string 
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 }
+
 export async function getAll(req: Request, res: Response) {
   try {
     const QueryResult = await prisma.location.findMany();
@@ -153,4 +139,3 @@ export async function getAll(req: Request, res: Response) {
     }
   }
 }
-

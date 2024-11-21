@@ -59,8 +59,6 @@ export async function searchUsers(req: Request, res: Response) {
       ];
     }
 
-    console.log("Filter used for search:", filter);
-
     const users = await prisma.user.findMany({
       where: filter,
       select: {
@@ -70,8 +68,6 @@ export async function searchUsers(req: Request, res: Response) {
         address: true,
       },
     });
-
-    console.log("Retrieved Users:", users);
 
     if (users.length === 0) {
       return res.status(404).send("No users found with the given criteria");
@@ -198,46 +194,47 @@ export async function updateById(req: Request, res: Response) {
   
   
   export async function login(req: Request, res: Response) {
-    const body = req.body;
+    const { email, password } = req.body;
   
     try {
-      const QueryResult = await prisma.user.findUnique({
-        where: { email: body.email },
+
+      const user = await prisma.user.findUnique({
+        where: { email },
       });
   
-      if (!QueryResult) {
-        return res.status(404).send("Error: email or password incorrect");
+      if (!user) {
+
+        return res.status(404).json({ message: "Cet email n'est pas enregistré." });
       }
-  
-      const isPasswordValid = await bcrypt.compare(body.password, QueryResult.password);
+      const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        return res.status(404).send("Error: email or password incorrect");
+        return res.status(404).json({ message: "Mot de passe incorrect." });
       }
-  
+
       const jwtSecret = process.env.JWT_SIGN_SECRET;
       if (!jwtSecret) {
         console.error("JWT secret is undefined");
         return res.status(500).send("Internal server error: JWT secret is missing");
       }
-  
+
       const token = jwt.sign(
         {
-          email: QueryResult.email,
-          id: QueryResult.id,
+          email: user.email,
+          id: user.id,
         },
         jwtSecret,
         {
           expiresIn: "48h",
         }
       );
-
-      const result = { token: token, id: QueryResult.id };
-      return res.status(200).json(result);
+  
+      return res.status(200).json({ token, id: user.id });
     } catch (error) {
       console.error("Error in login:", error);
-      return res.status(500).send("Internal server error");
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
+  
   
   export async function updatePassword(req: Request, res: Response) {
     try {
